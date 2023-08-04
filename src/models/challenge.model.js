@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
+const { types } = require('joi');
+const { challengeTypes } = require('../config/challengeTypes');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const challengeSchema = mongoose.Schema(
   {
@@ -11,13 +13,20 @@ const challengeSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
+      enum: challengeTypes,
     },
-    bettings: [
-      {
-        user: Number,
-        amount: Number,
-      },
-    ],
+    bettings: {
+      type: [
+        {
+          team: String,
+          users: {
+            type: [String],
+            default: [],
+          },
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,

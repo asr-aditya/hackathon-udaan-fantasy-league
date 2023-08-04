@@ -50,7 +50,6 @@ router.route('/getCostArray').get(
             });
           });
         });
-
         res.send(result);
       });
   })

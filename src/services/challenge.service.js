@@ -1,22 +1,19 @@
-
 const httpStatus = require('http-status');
 const { Challenge } = require('../models');
 const ApiError = require('../utils/ApiError');
-
 
 const createChallenge = async (challengeBody) => {
   return Challenge.create(challengeBody);
 };
 
-const queryChallenges = async (filter, options) => {
-  const challenges = await Challenge.paginate(filter, options);
+const findOneChallenge = async (filter, options) => {
+  const challenges = await Challenge.findOne(filter, options);
   return challenges;
 };
 
 const getChallengeById = async (id) => {
   return Challenge.findById(id);
 };
-
 
 const updateChallengeById = async (challengeId, updateBody) => {
   const challenge = await getChallengeById(challengeId);
@@ -39,7 +36,7 @@ const deleteChallengeById = async (challengeId) => {
 
 module.exports = {
   createChallenge,
-  queryChallenges,
+  findOneChallenge,
   getChallengeById,
   updateChallengeById,
   deleteChallengeById,

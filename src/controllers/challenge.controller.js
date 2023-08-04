@@ -1,4 +1,3 @@
-
 const httpStatus = require('http-status');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
@@ -13,7 +12,7 @@ const createChallenge = catchAsync(async (req, res) => {
 const getChallenges = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'role']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const result = await challengeService.queryChallenges(filter, options);
+  const result = await challengeService.findOneChallenge(filter, options);
   res.send(result);
 });
 
@@ -35,10 +34,28 @@ const deleteChallenge = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const placeBet = catchAsync(async (req, res) => {
+  const { team, user, challenge } = req.query;
+  // res.send(`${team}:  ${user}: ${challenge}`);
+  const challengeObj = await challengeService.findOneChallenge({ name: challenge });
+  challengeObj.bettings.forEach((element) => {
+    if (element.team == team) {
+      if (element.users.includes(user)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Kitna satta lagaega -_-');
+      } else {
+        element.users.push(user);
+      }
+    }
+  });
+  const updated = await challengeService.updateChallengeById(challengeObj._id, { ...challengeObj });
+  res.status(httpStatus.CREATED).send();
+});
+
 module.exports = {
   createChallenge,
   getChallenges,
   getChallenge,
   updateChallenge,
   deleteChallenge,
+  placeBet,
 };

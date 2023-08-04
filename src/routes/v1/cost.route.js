@@ -273,4 +273,40 @@ router.route('/getAvailabilityArray').get(
   })
 );
 
+router.route('/getCostWinner').get(
+  catchAsync(async (req, res) => {
+    const challengeObject = await challengeService.findOneChallenge({ name: CHALLENGE_NAME_COST });
+    const teamBets = {};
+    challengeObject.bettings.forEach((bet) => {
+      teamBets[bet.team] = bet.users;
+    });
+    const result = [];
+    const data = axios
+      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=3')
+      .then((response) => {
+        // console.log('Value is ', response.data);
+        const data = response.data;
+        const key1 = data.graphTimeline[0];
+        const key2 = data.graphTimeline[1];
+        console.log(`ky1 : ${key1}, ky2 : ${key2}`);
+        data.data.forEach((element) => {
+          element.children.forEach((team) => {
+            result.push({
+              teamName: team.TeamName,
+              costDelta: ((team[key1] - team[key2]) * 100) / team[key1],
+            });
+          });
+        });
+        result.sort((a, b) => b.costDelta - a.costDelta);
+
+        const winner = result[0].teamName;
+        const users = teamBets[winner];
+        res.send({
+          team: winner,
+          betters: users,
+        });
+      });
+  })
+);
+
 module.exports = router;

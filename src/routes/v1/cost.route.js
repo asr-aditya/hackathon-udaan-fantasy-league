@@ -30,4 +30,30 @@ router.route('/getCost').get(
   })
 );
 
+router.route('/getCostArray').get(
+  catchAsync(async (req, res) => {
+    const team = req.query.team;
+    const result = [];
+    const data = axios
+      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=30')
+      .then((response) => {
+        // console.log('Value is ', response.data);
+        const data = response.data;
+        const keysData = data.graphTimeline;
+        console.log(`kys : ${keysData}`);
+        data.data.forEach((element) => {
+          element.children.forEach((team) => {
+            const valuableKeys = Object.keys(team).filter((key) => keysData.includes(key));
+            result.push({
+              teamName: team['TeamName'],
+              values: valuableKeys.map((key) => team[key]),
+            });
+          });
+        });
+
+        res.send(result);
+      });
+  })
+);
+
 module.exports = router;

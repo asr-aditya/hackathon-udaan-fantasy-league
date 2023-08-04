@@ -1,13 +1,17 @@
 const express = require('express');
 const catchAsync = require('../../utils/catchAsync');
 const axios = require('axios');
+const { challengeService } = require('../../services');
 
 const router = express.Router();
+
+const CHALLENGE_NAME_COST = 'Week_1_Cost_Optimisation_challenge';
 
 router.route('/getCost').get(
   catchAsync(async (req, res) => {
     const team = req.query.team;
     const result = [];
+    const challengeObject = challengeService.findOneChallenge({ name: CHALLENGE_NAME_COST });
     const data = axios
       .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=3')
       .then((response) => {
@@ -35,9 +39,7 @@ router.route('/getCostArray').get(
     const team = req.query.team;
     const result = [];
     const data = axios
-      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=30', {
-        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-      })
+      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=30')
       .then((response) => {
         // console.log('Value is ', response.data);
         const data = response.data;

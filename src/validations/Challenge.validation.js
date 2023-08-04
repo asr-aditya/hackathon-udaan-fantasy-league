@@ -1,11 +1,7 @@
-
 const Joi = require('joi');
 
-
 const createChallenge = {
-  body: Joi.object().keys({
-    
-  }),
+  body: Joi.object().keys({}),
 };
 
 const getChallenges = {
@@ -16,22 +12,11 @@ const getChallenges = {
   }),
 };
 
-const getChallenge = {
-  params: 
-};
+const getChallenge = {};
 
-const updateChallenge = {
-  params: ,
-  body: Joi.object()
-    .keys({
-     
-    })
-    .min(1),
-};
+const updateChallenge = {};
 
-const deleteChallenge = {
-  params: 
-};
+const deleteChallenge = {};
 
 module.exports = {
   createChallenge,

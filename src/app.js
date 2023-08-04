@@ -17,6 +17,8 @@ const ApiError = require('./utils/ApiError');
 
 const app = express();
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 if (config.env !== 'test') {
   app.use(morgan.successHandler);
   app.use(morgan.errorHandler);

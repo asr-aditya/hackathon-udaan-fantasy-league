@@ -35,7 +35,9 @@ router.route('/getCostArray').get(
     const team = req.query.team;
     const result = [];
     const data = axios
-      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=30')
+      .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=30', {
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      })
       .then((response) => {
         // console.log('Value is ', response.data);
         const data = response.data;
@@ -52,6 +54,27 @@ router.route('/getCostArray').get(
         });
         res.send(result);
       });
+  })
+);
+
+router.route('/getSDHistory').get();
+
+router.route('/getServiceAvailability').get(
+  catchAsync(async (req, res) => {
+    const apiUrl = `https://thanos.k8s0.xp.udaan.io/api/v1/query?query=%28%28100.0+-+%28error_http_request_duration_seconds_count%3Asum5m%7Bcluster%3D%22udaan-sin0%22%2Cnamespace%3D%22prod%22%7D%2Fhttp_request_duration_seconds_count%3Asum5m%7Bcluster%3D%22udaan-sin0%22%2Cnamespace%3D%22prod%22%7D*100%29%29+or+on%28%29+vector%28100%29%29&dedup=true&partial_response=false&time=${
+      Date.now() / 1000
+    }`;
+    const result = [];
+    const data = axios.get(apiUrl).then((response) => {
+      const data = response.data.data.result;
+      data.forEach((element) => {
+        result.push({
+          service: element.metric.service,
+          availability: element.value[1],
+        });
+      });
+      res.send(result);
+    });
   })
 );
 

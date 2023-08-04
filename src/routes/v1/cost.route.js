@@ -5,13 +5,18 @@ const { challengeService } = require('../../services');
 
 const router = express.Router();
 
-const CHALLENGE_NAME_COST = 'Week_1_Cost_Optimisation_challenge';
+const CHALLENGE_NAME_COST = 'WEEK_1_COST_OPTIMISATION';
+const CHALLENGE_NAME_SERVICE = 'WEEK_1_SERVICE_AVAILABILITY';
 
 router.route('/getCost').get(
   catchAsync(async (req, res) => {
     const team = req.query.team;
     const result = [];
-    const challengeObject = challengeService.findOneChallenge({ name: CHALLENGE_NAME_COST });
+    const challengeObject = await challengeService.findOneChallenge({ name: CHALLENGE_NAME_COST });
+    const teamBets = {};
+    challengeObject.bettings.forEach((bet) => {
+      teamBets[bet.team] = bet.users.length * 100;
+    });
     const data = axios
       .get('https://svc-hack.dev.udaan.io/cost-analysis/api/summary?Granularity=DAY&LookBackWindow=3')
       .then((response) => {
@@ -25,7 +30,7 @@ router.route('/getCost').get(
             result.push({
               teamName: team.TeamName,
               costDelta: ((team[key1] - team[key2]) * 100) / team[key1],
-              betsPlaced: 28,
+              betsPlaced: Object.keys(teamBets).includes(team.TeamName) ? teamBets[team.TeamName] : 0,
             });
           });
         });
@@ -67,12 +72,18 @@ router.route('/getServiceAvailability').get(
       Date.now() / 1000
     }`;
     const result = [];
+    const challengeObject = await challengeService.findOneChallenge({ name: CHALLENGE_NAME_SERVICE });
+    const teamBets = {};
+    challengeObject.bettings.forEach((bet) => {
+      teamBets[bet.team] = bet.users.length * 100;
+    });
     const data = axios.get(apiUrl).then((response) => {
       const data = response.data.data.result;
       data.forEach((element) => {
         result.push({
           service: element.metric.service,
           availability: element.value[1],
+          betsPlaced: Object.keys(teamBets).includes(element.metric.service) ? teamBets[element.metric.service] : 0,
         });
       });
       res.send(result);

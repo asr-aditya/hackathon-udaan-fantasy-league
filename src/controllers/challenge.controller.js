@@ -38,15 +38,23 @@ const placeBet = catchAsync(async (req, res) => {
   const { team, user, challenge } = req.query;
   // res.send(`${team}:  ${user}: ${challenge}`);
   const challengeObj = await challengeService.findOneChallenge({ name: challenge });
+  const betPlaced = false;
   challengeObj.bettings.forEach((element) => {
     if (element.team == team) {
       if (element.users.includes(user)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Kitna satta lagaega -_-');
       } else {
         element.users.push(user);
+        betPlaced = true;
       }
     }
   });
+  if (!betPlaced) {
+    challengeObj.bettings.push({
+      team: team,
+      users: [user],
+    });
+  }
   const updated = await challengeService.updateChallengeById(challengeObj._id, { ...challengeObj });
   res.status(httpStatus.CREATED).send();
 });

@@ -38,7 +38,7 @@ const placeBet = catchAsync(async (req, res) => {
   const { team, user, challenge } = req.query;
   // res.send(`${team}:  ${user}: ${challenge}`);
   const challengeObj = await challengeService.findOneChallenge({ name: challenge });
-  const betPlaced = false;
+  var betPlaced = false;
   challengeObj.bettings.forEach((element) => {
     if (element.team == team) {
       if (element.users.includes(user)) {

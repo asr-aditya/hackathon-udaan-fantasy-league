@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
+
 const { toJSON, paginate } = require('./plugins');
 // const { roles } = require('../config/roles');
 
 const userSchema = mongoose.Schema(
   {
+    _id: Number,
     name: {
       type: String,
       required: true,
@@ -23,6 +26,33 @@ const userSchema = mongoose.Schema(
         }
       },
     },
+    rewardPoints: {
+      type: Number,
+      default: 0,
+    },
+    challengesWon: {
+      type: [
+        {
+          type: String,
+          ref: 'Challenge',
+        },
+      ],
+      default: [],
+    },
+    commits: {
+      type: Number,
+      default: 0,
+    },
+    badges: {
+      type: [
+        {
+          type: String,
+          ref: 'Badge',
+        },
+      ],
+      default: [],
+    },
+    team: String,
   },
   {
     timestamps: true,
@@ -32,7 +62,7 @@ const userSchema = mongoose.Schema(
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
-
+userSchema.plugin(AutoIncrement, { id: 'user_id' });
 /**
  * Check if email is taken
  * @param {string} email - The user's email
